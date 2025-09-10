@@ -1,11 +1,11 @@
 // src/Routing.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { solveVrp, checkHealth } from './utils/api'; // Import our new API client!
-import { Zap, Navigation, BarChart3, X } from "lucide-react"; // Using your icon set
+import { solveVrp } from './utils/api'; // We no longer import checkHealth
+import { Zap, Navigation, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- (Leaflet Icon setup) ---
@@ -16,7 +16,6 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Custom icon for the depot
 const depotIcon = L.divIcon({ 
     className: 'depot-icon', 
     html: 'D', 
@@ -34,14 +33,7 @@ export default function Routing() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
-  const [backendStatus, setBackendStatus] = useState('checking');
-
-  // Check backend health on component mount
-  useEffect(() => {
-    checkHealth()
-      .then(() => setBackendStatus('healthy'))
-      .catch(() => setBackendStatus('unhealthy'));
-  }, []);
+  // The 'backendStatus' state and the 'useEffect' for health check have been removed.
 
   const handleOptimize = async () => {
     setLoading(true);
@@ -97,7 +89,7 @@ export default function Routing() {
           </div>
           <button 
             onClick={handleOptimize} 
-            disabled={loading || backendStatus !== 'healthy'} 
+            disabled={loading} // Button is now only disabled when loading
             className="w-full p-4 mt-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all bg-white text-black disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
           >
             {loading ? (
@@ -107,9 +99,6 @@ export default function Routing() {
             ) : <Zap size={20}/>}
             {loading ? 'Optimizing...' : 'Optimize Fleet Routes'}
           </button>
-          <div className={`text-center text-xs mt-2 ${backendStatus === 'healthy' ? 'text-green-400' : 'text-red-400'}`}>
-            Backend Status: {backendStatus}
-          </div>
         </div>
       </div>
 
